@@ -1,23 +1,41 @@
-import logo from './logo.svg';
+import { v4 as uuidv4 } from 'uuid';
+import { ImageWidget } from './components/ImageWidget/ImageWidget';
+import { ImagesContainer } from './components/ImagesContainer/ImagesContainer';
 import './App.css';
+import { useRef, useState } from 'react';
 
 function App() {
+  const [ images, setImages ] = useState([]);
+  const fileRef = useRef();
+
+  function handleForChangeFiles() {
+    const files = fileRef.current.files;
+
+    const newImages = [...files].map((file, index) => {
+      const { name } = file;
+      const link = URL.createObjectURL(file);
+
+      return { 
+        id: uuidv4(), 
+        link, 
+        name 
+      };
+    })
+
+    setImages([...newImages, ...images])
+  }
+
+  function handleForDeleteImage(imgId) {
+    setImages(images.filter(img => img.id !== imgId));
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app__container">
+      <ImageWidget 
+        onChangeFiles={handleForChangeFiles}
+        fileRef={fileRef}
+      />
+      <ImagesContainer images={images} onDeleteImg={handleForDeleteImage} />
     </div>
   );
 }
